@@ -1,0 +1,32 @@
+version: 2.1
+
+jobs: 
+  deploy: 
+    docker:
+        - image: cimg/node:16.10
+    steps: 
+      - checkout 
+      - restore_cache: 
+          keys: 
+            - vi-depend-{{ checksum "package.json" }}
+            - vi-depend 
+      - run: 
+          name: Install dependencies 
+          command: npm install 
+      - save_cache:
+          paths:
+            - node_modules
+          key: vI-depend-{{ checksum "package.json" }}  
+      - run: 
+          name: Run test 
+          command: npm run test
+      - run: 
+          name: build
+          command: npm run build 
+      - run: 
+          name: Deploy at Netlify 
+          command: npm run deploy 
+  workflows: 
+    build_deploy:
+      jobs:
+        - deploy 
